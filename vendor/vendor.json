@@ -1,0 +1,115 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "KQhA4EQp4Ldwj9nJZnEURlE6aQw=",
+			"path": "github.com/kr/fs",
+			"revision": "2788f0dbd16903de03cb8186e5c7d97b69ad387b",
+			"revisionTime": "2013-11-06T22:25:44Z"
+		},
+		{
+			"checksumSHA1": "ogmpPV26zYyvKopYdcaQrcM8fl8=",
+			"path": "github.com/pkg/sftp",
+			"revision": "051287be6db30d3de26316e0b906db5400693abf",
+			"revisionTime": "2016-01-07T20:56:04Z"
+		},
+		{
+			"checksumSHA1": "K5ubNdU09igGFEqE+oJvyqvhdis=",
+			"path": "github.com/rocksolidlabs/afero",
+			"revision": "9be650865eab0c12963d8753212f4f9c66cdcf12",
+			"revisionTime": "2017-02-17T16:41:46Z"
+		},
+		{
+			"checksumSHA1": "0FpE69zzLs1edqcS+PyIeJTJ/jE=",
+			"path": "github.com/rocksolidlabs/afero-replicate-on-write",
+			"revision": "0e7cda4229e7be1e1a8dad685bd1ceaabd8c615b",
+			"revisionTime": "2017-03-01T21:25:50Z"
+		},
+		{
+			"checksumSHA1": "vLoIE4scZEX5shzUbjm6tXry/d8=",
+			"path": "github.com/rocksolidlabs/afero/mem",
+			"revision": "9be650865eab0c12963d8753212f4f9c66cdcf12",
+			"revisionTime": "2017-02-17T16:41:46Z"
+		},
+		{
+			"checksumSHA1": "8aeWuiNvcm6196CY/YyLncz78UI=",
+			"path": "github.com/rocksolidlabs/afero/sftpfs",
+			"revision": "9be650865eab0c12963d8753212f4f9c66cdcf12",
+			"revisionTime": "2017-02-17T16:41:46Z"
+		},
+		{
+			"checksumSHA1": "TFyIDtn0SOOHkibFCIop/+c8sa0=",
+			"path": "github.com/rocksolidlabs/jsonq",
+			"revision": "d3888677456a9769f8445ffce83bccc76f74d51f",
+			"revisionTime": "2017-02-28T02:02:14Z"
+		},
+		{
+			"checksumSHA1": "9jFFVttlMr6qQ7e+IrcT20XmFQY=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "61e43dc76f7ee59a82bdf3d71033dc12bea4c77d",
+			"revisionTime": "2017-01-13T01:19:11Z"
+		},
+		{
+			"checksumSHA1": "lBehULzb2/kIK3wZ0gz2yNmHq9s=",
+			"path": "github.com/spf13/afero",
+			"revision": "72b31426848c6ef12a7a8e216708cb0d1530f074",
+			"revisionTime": "2017-01-09T22:53:20Z"
+		},
+		{
+			"checksumSHA1": "5KRbEQ28dDaQmKwAYTD0if/aEvg=",
+			"path": "github.com/spf13/afero/mem",
+			"revision": "72b31426848c6ef12a7a8e216708cb0d1530f074",
+			"revisionTime": "2017-01-09T22:53:20Z"
+		},
+		{
+			"checksumSHA1": "C1KKOxFoW7/W/NFNpiXK+boguNo=",
+			"origin": "github.com/rocksolidlabs/afero/vendor/golang.org/x/crypto/curve25519",
+			"path": "golang.org/x/crypto/curve25519",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "wGb//LjBPNxYHqk+dcLo7BjPXK8=",
+			"origin": "github.com/rocksolidlabs/afero/vendor/golang.org/x/crypto/ed25519",
+			"path": "golang.org/x/crypto/ed25519",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "LXFcVx8I587SnWmKycSDEq9yvK8=",
+			"origin": "github.com/rocksolidlabs/afero/vendor/golang.org/x/crypto/ed25519/internal/edwards25519",
+			"path": "golang.org/x/crypto/ed25519/internal/edwards25519",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "fsrFs762jlaILyqqQImS1GfvIvw=",
+			"origin": "github.com/rocksolidlabs/afero/vendor/golang.org/x/crypto/ssh",
+			"path": "golang.org/x/crypto/ssh",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "uTQtOqR0ePMMcvuvAIksiIZxhqU=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "d75a52659825e75fff6158388dddc6a5b04f9ba5",
+			"revisionTime": "2016-12-14T18:38:57Z"
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"origin": "github.com/rocksolidlabs/afero/vendor/golang.org/x/text/transform",
+			"path": "golang.org/x/text/transform",
+			"revision": "11dbc599981ccdf4fb18802a28392a8bcf7a9395",
+			"revisionTime": "2017-01-12T23:38:57Z"
+		},
+		{
+			"checksumSHA1": "Vircurgvsnt4k26havmxPM67PUA=",
+			"origin": "github.com/rocksolidlabs/afero/vendor/golang.org/x/text/unicode/norm",
+			"path": "golang.org/x/text/unicode/norm",
+			"revision": "11dbc599981ccdf4fb18802a28392a8bcf7a9395",
+			"revisionTime": "2017-01-12T23:38:57Z"
+		}
+	],
+	"rootPath": "github.com/rocksolidlabs/jsondb"
+}
