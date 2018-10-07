@@ -14,19 +14,19 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
+	"github.com/intwineapp/logger"
 	"github.com/pkg/sftp"
 	"github.com/rocksolidlabs/afero"
 	"github.com/rocksolidlabs/afero-replicate-on-write"
 	"github.com/rocksolidlabs/afero/sftpfs"
 	"github.com/rocksolidlabs/jsonq"
-	"github.com/sirupsen/logrus"
 )
 
 const Version = "0.0.1"
 
 type JSONDB struct {
 	Trace   bool
-	Logger  *logrus.Logger
+	Logger  *logger.Logger
 	Dir     string
 	mutex   sync.Mutex
 	mutexes map[string]sync.Mutex
@@ -34,7 +34,7 @@ type JSONDB struct {
 }
 
 // Create a new JSONDB instance using os FS
-func NewJSONDB(datadir string, log *logrus.Logger, trace bool) (*JSONDB, error) {
+func NewJSONDB(datadir string, log *logger.Logger, trace bool) (*JSONDB, error) {
 
 	dir := filepath.Clean(datadir + "/db")
 
@@ -49,18 +49,18 @@ func NewJSONDB(datadir string, log *logrus.Logger, trace bool) (*JSONDB, error) 
 		DBFS:    osFs,
 	}
 
-	if trace {
-		log.WriterLevel(logrus.DebugLevel)
-	}
-
 	// if the database already exists, just use it
 	if _, err := db.DBFS.Stat(dir); err == nil {
-		db.Logger.Debug("Using '%s' (database already exists)\n", dir)
+		if trace {
+			db.Logger.Info("Using '%s' (database already exists)\n", dir)
+		}
 		return db, nil
 	}
 
 	// if the database doesn't exist create it
-	db.Logger.Debug("Creating database at '%s'...\n", dir)
+	if trace {
+		db.Logger.Info("Creating database at '%s'...\n", dir)
+	}
 	err := db.DBFS.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func NewJSONDB(datadir string, log *logrus.Logger, trace bool) (*JSONDB, error) 
 }
 
 // Create a new JSONDB instance using os FS with replication to sftp FS
-func NewJSONDBWithSftpReplication(datadir, host, username, password string, log *logrus.Logger, trace bool) (*JSONDB, error) {
+func NewJSONDBWithSftpReplication(datadir, host, username, password string, log *logger.Logger, trace bool) (*JSONDB, error) {
 
 	dir := filepath.Clean(datadir + "/db")
 
@@ -92,18 +92,18 @@ func NewJSONDBWithSftpReplication(datadir, host, username, password string, log 
 		DBFS:    repwrFs,
 	}
 
-	if trace {
-		log.WriterLevel(logrus.DebugLevel)
-	}
-
 	// if the database already exists, just use it
 	if _, err := db.DBFS.Stat(dir); err == nil {
-		db.Logger.Debug("Using '%s' (database already exists)\n", dir)
+		if trace {
+			db.Logger.Infof("Using '%s' (database already exists)\n", dir)
+		}
 		return db, nil
 	}
 
 	// if the database doesn't exist create it
-	db.Logger.Debug("Creating database at '%s'...\n", dir)
+	if trace {
+		db.Logger.Infof("Creating database at '%s'...\n", dir)
+	}
 	err = db.DBFS.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, err
@@ -201,6 +201,37 @@ func (db *JSONDB) Get(collection, resource string, record interface{}) error {
 
 	// unmarshal data
 	return json.Unmarshal(b, &record)
+}
+
+// Get a record from the database and return the JSON byte array
+func (db *JSONDB) GetBytes(collection, resource string) ([]byte, error) {
+
+	// ensure there is a place to save record
+	if collection == "" {
+		return nil, fmt.Errorf("Missing collection - no place to save record!")
+	}
+
+	// ensure there is a resource (name) to save record as
+	if resource == "" {
+		return nil, fmt.Errorf("Missing resource - unable to save record (no name)!")
+	}
+
+	//
+	rec := filepath.Join(db.Dir, collection, resource)
+
+	// check to see if file exists
+	if _, err := db.Stat(rec); err != nil {
+		return nil, err
+	}
+
+	// read record from database
+	b, err := afero.ReadFile(db.DBFS, rec+".json")
+	if err != nil {
+		return nil, err
+	}
+
+	// unmarshal data
+	return b, nil
 }
 
 // GetWhere records from a collection where the query path equals the expression;

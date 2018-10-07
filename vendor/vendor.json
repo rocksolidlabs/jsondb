@@ -45,12 +45,6 @@
 			"revisionTime": "2017-02-28T02:02:14Z"
 		},
 		{
-			"checksumSHA1": "9jFFVttlMr6qQ7e+IrcT20XmFQY=",
-			"path": "github.com/sirupsen/logrus",
-			"revision": "61e43dc76f7ee59a82bdf3d71033dc12bea4c77d",
-			"revisionTime": "2017-01-13T01:19:11Z"
-		},
-		{
 			"checksumSHA1": "lBehULzb2/kIK3wZ0gz2yNmHq9s=",
 			"path": "github.com/spf13/afero",
 			"revision": "72b31426848c6ef12a7a8e216708cb0d1530f074",
