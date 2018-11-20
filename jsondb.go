@@ -14,7 +14,7 @@ import (
 
 	"golang.org/x/crypto/ssh"
 
-	"github.com/intwineapp/logger"
+	"github.com/intwinelabs/logger"
 	"github.com/pkg/sftp"
 	"github.com/rocksolidlabs/afero"
 	"github.com/rocksolidlabs/afero-replicate-on-write"
