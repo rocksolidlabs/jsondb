@@ -5,15 +5,14 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/intwinelabs/logger"
-	"github.com/spf13/afero"
 	"github.com/rocksolidlabs/jsonq"
 )
 
@@ -25,7 +24,6 @@ type JSONDB struct {
 	Dir     string
 	mutex   sync.Mutex
 	mutexes map[string]sync.Mutex
-	DBFS    afero.Fs
 }
 
 // Create a new JSONDB instance using os FS
@@ -33,19 +31,16 @@ func NewJSONDB(datadir string, log *logger.Logger, trace bool) (*JSONDB, error) 
 
 	dir := filepath.Clean(datadir + "/db")
 
-	osFs := afero.NewOsFs()
-
 	// create db struct
 	db := &JSONDB{
 		Trace:   trace,
 		Logger:  log,
 		Dir:     dir,
 		mutexes: make(map[string]sync.Mutex),
-		DBFS:    osFs,
 	}
 
 	// if the database already exists, just use it
-	if _, err := db.DBFS.Stat(dir); err == nil {
+	if _, err := os.Stat(dir); err == nil {
 		if trace {
 			db.Logger.Info("Using '%s' (database already exists)\n", dir)
 		}
@@ -56,7 +51,7 @@ func NewJSONDB(datadir string, log *logger.Logger, trace bool) (*JSONDB, error) 
 	if trace {
 		db.Logger.Info("Creating database at '%s'...\n", dir)
 	}
-	err := db.DBFS.MkdirAll(dir, 0755)
+	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +69,7 @@ func (db *JSONDB) InitCollection(collection string) error {
 	dir := filepath.Join(db.Dir, collection)
 
 	// create collection directory
-	if err := db.DBFS.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
@@ -105,7 +100,7 @@ func (db *JSONDB) Put(collection, resource string, v interface{}) error {
 	tmpPath := fnlPath + ".tmp"
 
 	// create collection directory
-	if err := db.DBFS.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
@@ -116,12 +111,12 @@ func (db *JSONDB) Put(collection, resource string, v interface{}) error {
 	}
 
 	// write marshaled data to the temp file
-	if err := afero.WriteFile(db.DBFS, tmpPath, b, 0644); err != nil {
+	if err := ioutil.WriteFile(tmpPath, b, 0644); err != nil {
 		return err
 	}
 
 	// move final file into place
-	return db.DBFS.Rename(tmpPath, fnlPath)
+	return os.Rename(tmpPath, fnlPath)
 }
 
 // Get a record from the database and marshal it to the passed object
@@ -146,7 +141,7 @@ func (db *JSONDB) Get(collection, resource string, record interface{}) error {
 	}
 
 	// read record from database
-	b, err := afero.ReadFile(db.DBFS, rec+".json")
+	b, err := ioutil.ReadFile(rec+".json")
 	if err != nil {
 		return err
 	}
@@ -177,7 +172,7 @@ func (db *JSONDB) GetBytes(collection, resource string) ([]byte, error) {
 	}
 
 	// read record from database
-	b, err := afero.ReadFile(db.DBFS, rec+".json")
+	b, err := ioutil.ReadFile(rec+".json")
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +200,7 @@ func (db *JSONDB) GetWhere(collection, query string, expression, records interfa
 
 	// read all the files in the transaction.Collection; an error here just means
 	// the collection is either empty or doesn't exist
-	files, _ := afero.ReadDir(db.DBFS, dir)
+	files, _ := ioutil.ReadDir(dir)
 
 	// get the type of the records
 	rt, err := toSliceType(records)
@@ -220,7 +215,7 @@ func (db *JSONDB) GetWhere(collection, query string, expression, records interfa
 	// append the cast records to the passed collection slice
 	for _, file := range files {
 		// read the file bytes
-		fileBytes, err := afero.ReadFile(db.DBFS, filepath.Join(dir, file.Name()))
+		fileBytes, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
 		if err != nil {
 			return err
 		}
@@ -301,7 +296,7 @@ func (db *JSONDB) GetWhereNot(collection, query string, expression, records inte
 
 	// read all the files in the transaction.Collection; an error here just means
 	// the collection is either empty or doesn't exist
-	files, _ := afero.ReadDir(db.DBFS, dir)
+	files, _ := ioutil.ReadDir(dir)
 
 	// get the type of the records
 	rt, err := toSliceType(records)
@@ -316,7 +311,7 @@ func (db *JSONDB) GetWhereNot(collection, query string, expression, records inte
 	// append the cast records to the passed collection slice
 	for _, file := range files {
 		// read the file bytes
-		fileBytes, err := afero.ReadFile(db.DBFS, filepath.Join(dir, file.Name()))
+		fileBytes, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
 		if err != nil {
 			return err
 		}
@@ -396,7 +391,7 @@ func (db *JSONDB) GetAll(collection string, records interface{}) error {
 
 	// read all the files in the transaction.Collection; an error here just means
 	// the collection is either empty or doesn't exist
-	files, _ := afero.ReadDir(db.DBFS, dir)
+	files, _ := ioutil.ReadDir(dir)
 
 	// get the type of the records
 	rt, err := toSliceType(records)
@@ -409,7 +404,7 @@ func (db *JSONDB) GetAll(collection string, records interface{}) error {
 	// append the cast records to the passed collection slice
 	for _, file := range files {
 		// read the file bytes
-		fileBytes, err := afero.ReadFile(db.DBFS, filepath.Join(dir, file.Name()))
+		fileBytes, err := ioutil.ReadFile(filepath.Join(dir, file.Name()))
 		if err != nil {
 			db.Logger.Errorf("Error: %+v", err)
 			return err
@@ -451,11 +446,11 @@ func (db *JSONDB) Delete(collection, resource string) error {
 
 	// remove directory and all contents
 	case fi.Mode().IsDir():
-		return db.DBFS.RemoveAll(dir)
+		return os.RemoveAll(dir)
 
 	// remove file
 	case fi.Mode().IsRegular():
-		return db.DBFS.RemoveAll(dir + ".json")
+		return os.RemoveAll(dir + ".json")
 	}
 
 	return nil
@@ -486,7 +481,7 @@ func (db *JSONDB) Link(srcCollection, srcResource, destCollection, destResource 
 
 	// link file
 	case fi.Mode().IsRegular():
-		db.DBFS.Remove(dest + ".json")
+		os.Remove(dest + ".json")
 		return os.Symlink(src+".json", dest+".json")
 
 	}
@@ -498,8 +493,8 @@ func (db *JSONDB) Link(srcCollection, srcResource, destCollection, destResource 
 func (db *JSONDB) Stat(path string) (fi os.FileInfo, err error) {
 
 	// check for dir, if path isn't a directory check to see if it's a file
-	if fi, err = db.DBFS.Stat(path); os.IsNotExist(err) {
-		fi, err = db.DBFS.Stat(path + ".json")
+	if fi, err = os.Stat(path); os.IsNotExist(err) {
+		fi, err = os.Stat(path + ".json")
 	}
 
 	return
