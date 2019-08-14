@@ -12,13 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/crypto/ssh"
-
 	"github.com/intwinelabs/logger"
-	"github.com/pkg/sftp"
-	"github.com/rocksolidlabs/afero"
-	"github.com/rocksolidlabs/afero-replicate-on-write"
-	"github.com/rocksolidlabs/afero/sftpfs"
+	"github.com/spf13/afero"
 	"github.com/rocksolidlabs/jsonq"
 )
 
@@ -62,49 +57,6 @@ func NewJSONDB(datadir string, log *logger.Logger, trace bool) (*JSONDB, error) 
 		db.Logger.Info("Creating database at '%s'...\n", dir)
 	}
 	err := db.DBFS.MkdirAll(dir, 0755)
-	if err != nil {
-		return nil, err
-	}
-
-	return db, nil
-}
-
-// Create a new JSONDB instance using os FS with replication to sftp FS
-func NewJSONDBWithSftpReplication(datadir, host, username, password string, log *logger.Logger, trace bool) (*JSONDB, error) {
-
-	dir := filepath.Clean(datadir + "/db")
-
-	ctx, err := SftpConnect(host+":22", username, password)
-	if err != nil {
-		return nil, err
-	}
-
-	sftpFs := sftpfs.New(ctx.sftpc)
-	osFs := afero.NewOsFs()
-	repwrFs := aferorepwr.NewReplicateOnWriteFs(osFs, sftpFs)
-
-	// create db struct
-	db := &JSONDB{
-		Trace:   trace,
-		Logger:  log,
-		Dir:     dir,
-		mutexes: make(map[string]sync.Mutex),
-		DBFS:    repwrFs,
-	}
-
-	// if the database already exists, just use it
-	if _, err := db.DBFS.Stat(dir); err == nil {
-		if trace {
-			db.Logger.Infof("Using '%s' (database already exists)\n", dir)
-		}
-		return db, nil
-	}
-
-	// if the database doesn't exist create it
-	if trace {
-		db.Logger.Infof("Creating database at '%s'...\n", dir)
-	}
-	err = db.DBFS.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, err
 	}
@@ -655,45 +607,4 @@ func convert(i interface{}, protoType interface{}) interface{} {
 
 func convertType(i interface{}, typ reflect.Type) interface{} {
 	return reflect.ValueOf(i).Convert(typ).Interface()
-}
-
-type SftpFsContext struct {
-	sshc   *ssh.Client
-	sshcfg *ssh.ClientConfig
-	sftpc  *sftp.Client
-}
-
-func SftpConnect(host, username, password string) (*SftpFsContext, error) {
-
-	sshcfg := &ssh.ClientConfig{
-		User: username,
-		Auth: []ssh.AuthMethod{
-			ssh.Password(password),
-		},
-		Timeout: 1 * time.Second,
-	}
-
-	sshc, err := ssh.Dial("tcp", host, sshcfg)
-	if err != nil {
-		return nil, err
-	}
-
-	sftpc, err := sftp.NewClient(sshc)
-	if err != nil {
-		return nil, err
-	}
-
-	ctx := &SftpFsContext{
-		sshc:   sshc,
-		sshcfg: sshcfg,
-		sftpc:  sftpc,
-	}
-
-	return ctx, nil
-}
-
-func (ctx *SftpFsContext) Disconnect() error {
-	ctx.sftpc.Close()
-	ctx.sshc.Close()
-	return nil
 }

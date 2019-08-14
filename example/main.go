@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"github.com/rocksolidlabs/jsondb"
-	"github.com/sirupsen/logrus"
+	"github.com/intwinelabs/logger"
 )
 
-var log = &logrus.Logger{}
+var log = logger.New()
 
 type Person struct {
 	ID    string
@@ -19,11 +19,7 @@ type Person struct {
 
 func main() {
 
-	host := os.Args[1]
-	username := os.Args[2]
-	password := os.Args[3]
-
-	db, err := jsondb.NewJSONDBWithSftpReplication(".", host, username, password, log, true)
+	db, err := jsondb.NewJSONDB(".", log, false)
 	if err != nil {
 		panic(err)
 	}
